@@ -1,0 +1,22 @@
+{
+  "name": "plom-erlangify",
+  "version": "0.0.0",
+  "description": "Erlang expansion of process.json link.json and theta.json.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/plom/plom-erlangify.git"
+  },
+  "keywords": [
+    "PLoM",
+    "Erlang",
+    ""
+  ],
+  "author": "Sebastien Ballesteros",
+  "license": "GPLv3",
+  "readmeFilename": "README.md",
+  "gitHead": "c2249eb6d5ab195ecbfb26f73a532a1742fa227b"
+}
