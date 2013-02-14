@@ -2,7 +2,8 @@ var _ = require('underscore')
   , util = require('util')
   , clone = require('clone')
   , erlangify_process = require('./lib/erlangify_process')
-  , erlangify_link = require('./lib/erlangify_link');
+  , erlangify_link = require('./lib/erlangify_link')
+  , erlangify_theta = require('./lib/erlangify_theta');
 
 var p = {
 
@@ -80,13 +81,33 @@ var l = {
   ]
 };
 
+var t = {
+  value: {
+    E: {
+      partition_id: 'variable_population', transformation: 'logit',
+      min:   {'city1__all': 0.07, 'city2__all': 0.07},
+      guess: {'city1__all': 0.07, 'city2__all': 0.07},
+      max:   {'city1__all': 0.07,  'city2__all': 0.07},
+      sd_transf:   {'city1__all': 0.0,  'city2__all': 0.0}
+    },
+
+    I: {
+      partition_id: 'identical_population', transformation:'logit',
+      min: 1e-6, guess: 1e-05, max: 1e-4, sd_transf: 0.01
+    },
+
+    v: {
+      partition_id: 'identical_population', transformation: 'log', unit: 'D', type: 'rate_as_duration',
+      min: 5, guess: 11, max: 20,
+      sd_transf: 0.02
+    }
+  }
+};
 
 var user_input = [
   {from: 'E', to: 'E', rate: '(1-alpha)*l', shape: 3, rescale: 'l'}, //note that the rate do *not* contains "s", the split into A or I occurs after the Erlang expansion
   {from: 'I', to: 'I', rate: '(1-alpha)*v', shape: 2, rescale: 'v'} //also we need the "rescale" property to multiply the argument (x) of "rescale" by "shape" in the other reactions whom rates can be different from the one specified here
 ];
-
-
 
 var e_p = erlangify_process(p, user_input);
 console.log(util.inspect(e_p, false, null));
@@ -94,4 +115,5 @@ console.log(util.inspect(e_p, false, null));
 var e_l = erlangify_link(l, user_input);
 console.log(util.inspect(e_l, false, null));
 
-
+var e_t = erlangify_theta(t, user_input);
+console.log(util.inspect(e_t, false, null));
