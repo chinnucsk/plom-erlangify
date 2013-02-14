@@ -1,6 +1,7 @@
 var _ = require('underscore')
   , util = require('util')
-  , clone = require('clone');
+  , clone = require('clone')
+  , Erlang = require('./lib/erlang');
 
 var p = {
 
@@ -85,32 +86,21 @@ var user_input = [
 ];
 
 
-/**
- * From user input as an array to an object with from as key
- */
-
-var erlang = {};
-
-user_input.forEach(function(el){
-  erlang[el.from] = clone(el);
-});
-
 
 /**
  * expand state variables objects
  */
-
-function expand_pstate(state){
+function erlangify_pstate(erlang, state){
 
   var expanded = [];
   state.forEach(function(s){
 
-    if(s.id in erlang){
-      for(var i=0; i< erlang[s.id].shape; i++){
+    if(s.id in erlang.state){
+      for(var i=0; i< erlang.state[s.id].shape; i++){
         var mys = clone(s);
         mys.id = s.id + '@' + i;
         if(mys.comment){
-          mys.comment +=  ' (Erlang expanded)'
+          mys.comment +=  util.format(' (Erlang expanded (@%d))', i);
         }
 
         expanded.push(mys);
@@ -124,173 +114,94 @@ function expand_pstate(state){
   return expanded;
 }
 
-console.log(expand_pstate(p.state));
-
 
 /**
- * expand list of state variables names (id) (e.g prevalence def and
- * transmission tag "by" property)
+ * Note this function returns an array as one reaction can result in
+ * several during erlangification
  */
+function erlangify_reaction(erlang, r) {
 
-function expand_state_list(state_list){
+  var e_reactions, e_r, e_obj, e_within;
 
-  var expanded = [];
-  state_list.forEach(function(s){
+  var erlangified = []; //the list of erlangified reactions
 
-    if(s in erlang){
-      for(var i=0; i< erlang[s].shape; i++){
-        var mys = s + '@' + i;
-        expanded.push(mys);
-      }
-    } else {
-      expanded.push(clone(s));    
-    }  
-
-  });
-
-  return expanded;
-}
-
-console.log(expand_state_list(["E", "I"]));
-
-/** 
- * Transform the rate into an array:
- *
- * example: 'r0*2*correct_rate(v)' ->
- * ['r0', '*', '2', 'correct_rate', '(', 'v', ')']
- */
-
-var op = ['+', '-', '*', '/', ',', '(', ')'];
-
-function parse_rate(rate){
-
-  rate = rate.replace(/\s+/g, '');
-
-  var s = ''
-    , l = [];
-  
-  for (var i = 0; i< rate.length; i++){
-    if (op.indexOf(rate[i]) !== -1){
-      if(s.length){
-        l.push(s);
-        s = '';
-      }
-      l.push(rate[i]);
-    } else {
-      s += rate[i];
-    }
-     
-  }
-
-  if (s.length){
-    l.push(s);
-  }
-
-  return l;
-}
-
-
-console.log(parse_rate('(1 - alpha) * l'));
-
-function multiply_by_shape(rate, target, shape){
-
-  var l = parse_rate(rate);
-  
-  //replace every occurrence of target by target*shape
-  l.forEach(function(x, i){
-    if(x === target)      
-      l[i] = util.format("(%s*%d)", x, shape);
-  });
-
-  return l.join('');
-}
-
-
-function expand_state_in_rate(rate){
-
-  var l = parse_rate(rate);
-
-  l.forEach(function(s, i){
-    if(s in erlang){
-      e_s = [];
-      for(var j = 0; j< erlang[s].shape; j++){
-        e_s.push(s+ '@' + j);
-      }
-
-      l[i] = util.format("(%s)", e_s.join('+'));
-    }
-  });
-
-  return l.join('');  
-}
-
-
-
-var e_pmodel = []; //the expanded process model
-p.model.forEach(function(r){
-
-  var parsed_rate, e_reactions, e_r, e_obj, e_within;
-
-  if(r.from in erlang){
-    e_obj = erlang[r.from];
+  if(r.from in erlang.state){
+    e_obj = erlang.state[r.from];
 
     if(r.to !== 'U') {
       e_r = clone(r);
       e_r.from += '@' + (e_obj.shape-1);
-      e_r.to = (r.to in erlang) ? r.to + '@0' : r.to;
-      e_r.rate = multiply_by_shape(e_r.rate, e_obj['rescale'], e_obj.shape);
+      e_r.to = (r.to in erlang.state) ? r.to + '@0' : r.to;
+      e_r.rate = erlang.rescale(e_r.rate, r.from);
       
       if(('tag' in r) && ('transmission' in r.tag)){
-        e_r.tag.transmission.by = expand_state_list(e_r.tag.transmission.by);
+        e_r.tag.transmission.by = erlang.expand_state_list(e_r.tag.transmission.by);
       }
 
-      e_r.rate = expand_state_in_rate(e_r.rate);
-      e_pmodel.push(e_r);
+      e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+      erlangified.push(e_r);
 
     } else if (r.to === 'U') {
 
       for(var i = 0; i< e_obj.shape; i++){
         e_r = clone(r);
         e_r.from += '@' + i;
-        e_r.rate = multiply_by_shape(e_r.rate, e_obj['rescale'], e_obj.shape);
-        e_r.rate = expand_state_in_rate(e_r.rate);
-        e_pmodel.push(e_r);
+        e_r.rate = erlang.rescale(e_r.rate, r.from);
+        e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+        erlangified.push(e_r);
       }
 
     }
 
-  } else if(r.to in erlang) { //we know that r.from is not erlang
-    e_obj = erlang[r.to];
+  } else if(r.to in erlang.state) { //we know that r.from is not erlang
     
     e_r = clone(r);
     e_r.to += '@0';
-    e_r.rate = expand_state_in_rate(e_r.rate);
-    e_pmodel.push(e_r);
+    e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+    erlangified.push(e_r);
 
   } else {
+
     e_r = clone(r);    
-    e_r.rate = expand_state_in_rate(e_r.rate);
-    e_pmodel.push(e_r);    
+    e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+    erlangified.push(e_r);    
+
   }
 
-});
+  return erlangified;
+};
 
-console.log(e_pmodel);
 
+function within_state_reactions(erlang){
 
-//Within compartment expansion E@0->E@1, E@1->E@2, ...
-var e_reactions;
-for(var s in erlang){
-  e_reactions = [];
-  for(var i = 0; i< erlang[s].shape-1; i++){
-    e_reactions.push({
-      from: s + '@' + i,
-      to: s + '@' + (i+1),
-      rate: expand_state_in_rate(multiply_by_shape(erlang[s].rate, erlang[s]['rescale'], erlang[s]['shape']))
-    });
+  //Within compartment expansion E@0->E@1, E@1->E@2, ...
+  var e_within = [];
+
+  for(var s in erlang.state){
+    for(var i = 0; i< erlang.state[s].shape-1; i++){
+      e_within.push({
+        from: s + '@' + i,
+        to: s + '@' + (i+1),
+        rate: erlang.expand_state_in_rate(erlang.rescale(erlang.state[s].rate, s))
+      });
+    }
   }
 
-  console.log(e_reactions);
+  return e_within;
 }
 
 
+
+
+var erlang = new Erlang(user_input);
+
+console.log(erlangify_pstate(erlang, p.state));
+
+var e_pmodel = []; //the expanded process model
+p.model.forEach(function(r){  
+  e_pmodel = e_pmodel.concat(erlangify_reaction(erlang, r));
+});
+
+e_pmodel = e_pmodel.concat(within_state_reactions(erlang));
+
+console.log(e_pmodel);
