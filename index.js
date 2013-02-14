@@ -2,22 +2,44 @@ var _ = require('underscore')
   , clone = require('clone');
 
 var p = {
-  state: [{id:'S'}, {id:'E', comment: 'exposed'}, {id:'I'}],
-  parameter: [{id:'r0'}, {id:'v'}, {id:'l'}, {id:'sto'}, {id:'alpha'}, {id:'mu_b'}, {id:'mu_d'}, {id:'vol'}, {id:'g'}],
+
+  state: [
+    {id:'S'},
+    {id:'E', comment: 'exposed'},
+    {id:'I', comment: 'symptomatic infectious'}, 
+    {id:'A', comment: 'asymptomatic infectious'}
+  ],
+
+  parameter: [
+    {id:'r0', comment: 'basic reproductive number'},
+    {id:'v', comment: 'revovery rate'},
+    {id:'l', comment: 'latency rate'},
+    {id:'sto'},
+    {id:'alpha', comment: 'virulence'}, 
+    {id:'s', comment: 'proportion of symptomatic'}, 
+    {id:'mu_b'}, 
+    {id:'mu_d'}, 
+    {id:'g', comment: 'waning immunity rate'}
+  ],
 
   model: [
     {from: 'U',  to: 'S',  rate: 'mu_b*N'},
     {from: 'DU', to: 'S',  rate: 'g*(N-S-I)'},
 
-    {from: 'S',  to: 'E',  rate: 'r_0/N*v*I', tag: {transmission:{by: ["I"]}}},
+    {from: 'S',  to: 'E',  rate: 'r0/N*v*(I+A)', tag: {transmission:{by: ["I"]}}},
 
-    {from: 'E',  to: 'U',  rate: 'alpha*l + mu_d'},      
-    {from: 'E',  to: 'I',  rate: '(1-alpha)*l'},
+    {from: 'E',  to: 'U',  rate: 'alpha*l'},      
+    {from: 'E',  to: 'I',  rate: '(1-alpha)*l*s'},
+    {from: 'E',  to: 'A',  rate: '(1-alpha)*l*(1-s)'},
 
-    {from: 'I',  to: 'U',  rate: 'alpha*v + mu_d'},
+    {from: 'I',  to: 'U',  rate: 'alpha*v'},
     {from: 'I',  to: 'DU', rate: '(1-alpha)*v'},
+    {from: 'A',  to: 'DU', rate: 'v'},
 
-    {from: 'S',  to: 'U',  rate: 'mu_d'}
+    {from: 'S',  to: 'U',  rate: 'mu_d'},
+    {from: 'E',  to: 'U',  rate: 'mu_d'},
+    {from: 'I',  to: 'U',  rate: 'mu_d'},
+    {from: 'A',  to: 'U',  rate: 'mu_d'},
   ],
 
   white_noise: [
@@ -33,49 +55,44 @@ var p = {
 var l = {
   observed: [
     {
-      id: "prev",
-      definition: ["I"],
-      model_id: "common"
+      id: 'prev',
+      definition: ['I'],
+      model_id: 'common'
     },
     {
-      id: "SI",
-      definition: ["S", "I"], 
-      model_id: "common"
+      id: 'inc_out_E',
+      definition: {from:'E', to:'I'}, 
+      model_id: 'common'
     },
     {
-      id: "inc_out",  
-      definition: [{from:"I", to:"DU"}, {from:"I", to:"U"}],
-      model_id: "common"
+      id: 'inc_out',  
+      definition: [{from:'I', to:'U', rate: 'alpha*v'}],
+      model_id: 'common'
     },
     {
-      id: "inc_in",   
-      definition: [{from:"S", to:"E"}], 
-      model_id: "common"
+      id: 'inc_in',   
+      definition: [{from:'S', to:'E'}], 
+      model_id: 'common'
     }
   ]
 };
 
 
 var user_input = [
-  {state: 'I', rate: 'v', shape: 3}, //note that the rate is v and **not** (1-alpha)*v
-  {state: 'E', rate: 'l', shape: 2}
+  {from: 'E', to: 'E', rate: '(1-alpha)*l', shape: 3}, //note that the rate do *not* contains "s", the split into A or I occurs after the Erlang expansion
+  {from: 'I', to: 'I', rate: '(1-alpha)*v', shape: 2}
 ];
 
 
 
 /**
- * From user input to an object with states as key
+ * From user input as an array to an object with from as key
  */
 
 var erlang = {};
 
 user_input.forEach(function(el){
-  erlang[el.state] = {};
-  for(var p in el){
-    if (p !== 'state') {
-      erlang[el.state][p] = el[p];
-    }
-  }
+  erlang[el.from] = clone(el);
 });
 
 
