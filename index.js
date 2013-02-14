@@ -63,7 +63,7 @@ var l = {
     },
     {
       id: 'inc_out_E',
-      definition: {from:'E', to:'I'}, 
+      definition: [{from:'E', to:'I'}], 
       model_id: 'common'
     },
     {
@@ -132,13 +132,15 @@ function erlangify_reaction(erlang, r) {
       e_r = clone(r);
       e_r.from += '@' + (e_obj.shape-1);
       e_r.to = (r.to in erlang.state) ? r.to + '@0' : r.to;
-      e_r.rate = erlang.rescale(e_r.rate, r.from);
-      
-      if(('tag' in r) && ('transmission' in r.tag)){
-        e_r.tag.transmission.by = erlang.expand_state_list(e_r.tag.transmission.by);
+
+      if('rate' in e_r){
+        e_r.rate = erlang.rescale(e_r.rate, r.from);
+        e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+        if(('tag' in r) && ('transmission' in r.tag)){
+          e_r.tag.transmission.by = erlang.expand_state_list(e_r.tag.transmission.by);
+        }
       }
 
-      e_r.rate = erlang.expand_state_in_rate(e_r.rate);
       erlangified.push(e_r);
 
     } else if (r.to === 'U') {
@@ -146,8 +148,10 @@ function erlangify_reaction(erlang, r) {
       for(var i = 0; i< e_obj.shape; i++){
         e_r = clone(r);
         e_r.from += '@' + i;
-        e_r.rate = erlang.rescale(e_r.rate, r.from);
-        e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+        if('rate' in e_r){
+          e_r.rate = erlang.rescale(e_r.rate, r.from);
+          e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+        }
         erlangified.push(e_r);
       }
 
@@ -157,13 +161,17 @@ function erlangify_reaction(erlang, r) {
     
     e_r = clone(r);
     e_r.to += '@0';
-    e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+    if('rate' in e_r){
+      e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+    }
     erlangified.push(e_r);
 
   } else {
 
     e_r = clone(r);    
-    e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+    if('rate' in e_r){
+      e_r.rate = erlang.expand_state_in_rate(e_r.rate);
+    }
     erlangified.push(e_r);    
 
   }
@@ -195,9 +203,11 @@ function within_state_reactions(erlang){
 
 var erlang = new Erlang(user_input);
 
+//expand state
 console.log(erlangify_pstate(erlang, p.state));
 
-var e_pmodel = []; //the expanded process model
+//expand process model
+var e_pmodel = []; 
 p.model.forEach(function(r){  
   e_pmodel = e_pmodel.concat(erlangify_reaction(erlang, r));
 });
@@ -205,3 +215,42 @@ p.model.forEach(function(r){
 e_pmodel = e_pmodel.concat(within_state_reactions(erlang));
 
 console.log(e_pmodel);
+
+
+//expand white_noise
+var e_white_noise = clone(p.white_noise);
+e_white_noise.forEach(function(white_noise){
+
+  var res = []; 
+  white_noise.reaction.forEach(function(r){
+    res = res.concat(erlangify_reaction(erlang, r));
+  });
+  white_noise.reaction = res;
+});
+
+console.log(util.inspect(e_white_noise, false, null));
+
+//expand observed (link)
+
+var e_observed = clone(l.observed);
+e_observed.forEach(function(obs){
+
+  var res = []; 
+
+  if(typeof obs.definition[0] == 'object'){  //incidence
+
+    obs.definition.forEach(function(r){
+      res = res.concat(erlangify_reaction(erlang, r));
+    });
+
+  } else { //prevalence
+
+    res = erlang.expand_state_list(obs.definition);
+
+  }
+
+  obs.definition = res;
+
+});
+
+console.log(util.inspect(e_observed, false, null));
