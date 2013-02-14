@@ -1,4 +1,5 @@
 var util = require('util')
+  , fs = require('fs')
   , Erlang = require('../');
 
 var p = {
@@ -102,6 +103,10 @@ var t = {
     }
   }
 };
+
+fs.writeFileSync('process.json', JSON.stringify(p));
+fs.writeFileSync('link.json', JSON.stringify(l));
+fs.writeFileSync('theta.json', JSON.stringify(t));
 
 
 var def = [
