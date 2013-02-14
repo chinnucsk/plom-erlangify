@@ -1,4 +1,5 @@
 var _ = require('underscore')
+  , util = require('util')
   , clone = require('clone');
 
 var p = {
@@ -79,8 +80,8 @@ var l = {
 
 
 var user_input = [
-  {from: 'E', to: 'E', rate: '(1-alpha)*l', shape: 3, on: 'l'}, //note that the rate do *not* contains "s", the split into A or I occurs after the Erlang expansion
-  {from: 'I', to: 'I', rate: '(1-alpha)*v', shape: 2, on: 'v'} //also we need the "on" property to rate the argument x of "on" by x * shape in the other reactions whom rates can be from the one specified here
+  {from: 'E', to: 'E', rate: '(1-alpha)*l', shape: 3, rescale: 'l'}, //note that the rate do *not* contains "s", the split into A or I occurs after the Erlang expansion
+  {from: 'I', to: 'I', rate: '(1-alpha)*v', shape: 2, rescale: 'v'} //also we need the "rescale" property to multiply the argument (x) of "rescale" by "shape" in the other reactions whom rates can be different from the one specified here
 ];
 
 
@@ -190,5 +191,106 @@ function parse_rate(rate){
 
 
 console.log(parse_rate('(1 - alpha) * l'));
+
+function multiply_by_shape(rate, target, shape){
+
+  var l = parse_rate(rate);
+  
+  //replace every occurrence of target by target*shape
+  l.forEach(function(x, i){
+    if(x === target)      
+      l[i] = util.format("(%s*%d)", x, shape);
+  });
+
+  return l.join('');
+}
+
+
+function expand_state_in_rate(rate){
+
+  var l = parse_rate(rate);
+
+  l.forEach(function(s, i){
+    if(s in erlang){
+      e_s = [];
+      for(var j = 0; j< erlang[s].shape; j++){
+        e_s.push(s+ '@' + j);
+      }
+
+      l[i] = util.format("(%s)", e_s.join('+'));
+    }
+  });
+
+  return l.join('');  
+}
+
+
+
+var e_pmodel = []; //the expanded process model
+p.model.forEach(function(r){
+
+  var parsed_rate, e_reactions, e_r, e_obj, e_within;
+
+  if(r.from in erlang){
+    e_obj = erlang[r.from];
+
+    if(r.to !== 'U') {
+      e_r = clone(r);
+      e_r.from += '@' + (e_obj.shape-1);
+      e_r.to = (r.to in erlang) ? r.to + '@0' : r.to;
+      e_r.rate = multiply_by_shape(e_r.rate, e_obj['rescale'], e_obj.shape);
+      
+      if(('tag' in r) && ('transmission' in r.tag)){
+        e_r.tag.transmission.by = expand_state_list(e_r.tag.transmission.by);
+      }
+
+      e_r.rate = expand_state_in_rate(e_r.rate);
+      e_pmodel.push(e_r);
+
+    } else if (r.to === 'U') {
+
+      for(var i = 0; i< e_obj.shape; i++){
+        e_r = clone(r);
+        e_r.from += '@' + i;
+        e_r.rate = multiply_by_shape(e_r.rate, e_obj['rescale'], e_obj.shape);
+        e_r.rate = expand_state_in_rate(e_r.rate);
+        e_pmodel.push(e_r);
+      }
+
+    }
+
+  } else if(r.to in erlang) { //we know that r.from is not erlang
+    e_obj = erlang[r.to];
+    
+    e_r = clone(r);
+    e_r.to += '@0';
+    e_r.rate = expand_state_in_rate(e_r.rate);
+    e_pmodel.push(e_r);
+
+  } else {
+    e_r = clone(r);    
+    e_r.rate = expand_state_in_rate(e_r.rate);
+    e_pmodel.push(e_r);    
+  }
+
+});
+
+console.log(e_pmodel);
+
+
+//Within compartment expansion E@0->E@1, E@1->E@2, ...
+var e_reactions;
+for(var s in erlang){
+  e_reactions = [];
+  for(var i = 0; i< erlang[s].shape-1; i++){
+    e_reactions.push({
+      from: s + '@' + i,
+      to: s + '@' + (i+1),
+      rate: expand_state_in_rate(multiply_by_shape(erlang[s].rate, erlang[s]['rescale'], erlang[s]['shape']))
+    });
+  }
+
+  console.log(e_reactions);
+}
 
 
