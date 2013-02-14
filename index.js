@@ -12,7 +12,7 @@ var p = {
 
   parameter: [
     {id:'r0', comment: 'basic reproductive number'},
-    {id:'v', comment: 'revovery rate'},
+    {id:'v', comment: 'recovery rate'},
     {id:'l', comment: 'latency rate'},
     {id:'sto'},
     {id:'alpha', comment: 'virulence'}, 
@@ -28,7 +28,7 @@ var p = {
 
     {from: 'S',  to: 'E',  rate: 'r0/N*v*(I+A)', tag: {transmission:{by: ["I"]}}},
 
-    {from: 'E',  to: 'U',  rate: 'alpha*l'},      
+    {from: 'E',  to: 'U',  rate: 'alpha*l', comment: "disease induced mortality (virulence)"},
     {from: 'E',  to: 'I',  rate: '(1-alpha)*l*s'},
     {from: 'E',  to: 'A',  rate: '(1-alpha)*l*(1-s)'},
 
@@ -79,10 +79,9 @@ var l = {
 
 
 var user_input = [
-  {from: 'E', to: 'E', rate: '(1-alpha)*l', shape: 3}, //note that the rate do *not* contains "s", the split into A or I occurs after the Erlang expansion
-  {from: 'I', to: 'I', rate: '(1-alpha)*v', shape: 2}
+  {from: 'E', to: 'E', rate: '(1-alpha)*l', shape: 3, on: 'l'}, //note that the rate do *not* contains "s", the split into A or I occurs after the Erlang expansion
+  {from: 'I', to: 'I', rate: '(1-alpha)*v', shape: 2, on: 'v'} //also we need the "on" property to rate the argument x of "on" by x * shape in the other reactions whom rates can be from the one specified here
 ];
-
 
 
 /**
