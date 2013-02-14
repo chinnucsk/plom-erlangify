@@ -1,6 +1,6 @@
 {
   "name": "plom-erlangify",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Erlang expansion of process.json link.json and theta.json.",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,6 @@
   "readmeFilename": "README.md",
   "gitHead": "c2249eb6d5ab195ecbfb26f73a532a1742fa227b",
   "dependencies": {
-    "underscore": "~1.4.4",
     "clone": "~0.1.5"
   }
 }
