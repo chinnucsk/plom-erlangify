@@ -17,7 +17,7 @@ Erlang.prototype.ify = function(component) {
     ctype = 'process';
   } else if('observed' in component){
     ctype = 'link';
-  } else if('action' in component){
+  } else if('cmd' in component){
     ctype = 'design';
   } else {
     ctype = 'theta';
