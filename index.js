@@ -1,8 +1,7 @@
-var  Erlanger = require('./lib/erlanger')
+var Erlanger = require('./lib/erlanger')
   , erlangify_process = require('./lib/erlangify_process')
   , erlangify_link = require('./lib/erlangify_link')
   , erlangify_theta = require('./lib/erlangify_theta');
-
 
 function Erlang(def) {
   this.erlanger = new Erlanger(def); 
@@ -18,12 +17,11 @@ Erlang.prototype.ify = function(component) {
     ctype = 'process';
   } else if('observed' in component){
     ctype = 'link';
-  } else if('value' in component){
-    ctype = 'theta';
   } else if('action' in component){
     ctype = 'design';
+  } else {
+    ctype = 'theta';
   }
-
 
   if(ctype === 'process'){
     return erlangify_process(this.erlanger, component);

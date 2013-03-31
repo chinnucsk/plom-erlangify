@@ -82,13 +82,39 @@ var l = {
 
 var t = {
 
-  value: {
+  parameter: {
     E: {
       partition_id: 'variable_population', transformation: 'logit',
-      min:   {'city1__all': 0.07, 'city2__all': 0.07},
-      guess: {'city1__all': 0.07, 'city2__all': 0.07},
-      max:   {'city1__all': 0.07,  'city2__all': 0.07},
-      sd_transf:   {'city1__all': 0.0,  'city2__all': 0.0}
+      group: {
+        city1__all: {
+          min: {
+            value: 0.07
+          },
+          max: {
+            value: 0.07
+          },
+          guess: {
+            value: 0.07
+          },
+          sd_transf: {
+            value: 0.0
+          }
+        },
+        city2__all: {
+          min: {
+            value: 0.07
+          },
+          max: {
+            value: 0.07
+          },
+          guess: {
+            value: 0.07
+          },
+          sd_transf: {
+            value: 0.0
+          }
+        }           
+      }
     },
 
     I: {
@@ -108,7 +134,6 @@ fs.writeFileSync('process.json', JSON.stringify(p));
 fs.writeFileSync('link.json', JSON.stringify(l));
 fs.writeFileSync('theta.json', JSON.stringify(t));
 
-
 var def = [
   {from: 'E', to: 'E', rate: '(1-alpha)*l', shape: 3, rescale: 'l'}, //note that the rate do *not* contains "s", the split into A or I occurs after the Erlang expansion
   {from: 'I', to: 'I', rate: '(1-alpha)*v', shape: 2, rescale: 'v'} //also we need the "rescale" property to multiply the argument (x) of "rescale" by "shape" in the other reactions whom rates can be different from the one specified here
@@ -125,4 +150,3 @@ console.log(util.inspect(e_l, false, null));
 
 var e_t = erlang.ify(t);
 console.log(util.inspect(e_t, false, null));
-
