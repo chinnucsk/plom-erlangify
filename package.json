@@ -1,6 +1,6 @@
 {
   "name": "plom-erlangify",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Erlang expansion of process.json link.json and theta.json.",
   "main": "index.js",
   "scripts": {
