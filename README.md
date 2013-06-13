@@ -37,3 +37,8 @@ test
 
 see ```test/index.js```
 
+
+License
+=======
+
+GPL version 3 or any later version.
