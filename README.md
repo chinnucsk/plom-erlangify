@@ -35,7 +35,7 @@ usage
 test
 ====
 
-see ```test/index.js```
+    npm test
 
 
 License
