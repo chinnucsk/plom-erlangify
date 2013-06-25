@@ -1,0 +1,48 @@
+{
+  "observed": [
+    {
+      "id": "prev",
+      "definition": [
+        "I_0",
+        "I_1"
+      ],
+      "model_id": "common"
+    },
+    {
+      "id": "inc_out_E",
+      "definition": [
+        {
+          "from": "E_2",
+          "to": "I_0"
+        }
+      ],
+      "model_id": "common"
+    },
+    {
+      "id": "inc_out",
+      "definition": [
+        {
+          "from": "I_0",
+          "to": "U",
+          "rate": "alpha*(v*2)"
+        },
+        {
+          "from": "I_1",
+          "to": "U",
+          "rate": "alpha*(v*2)"
+        }
+      ],
+      "model_id": "common"
+    },
+    {
+      "id": "inc_in",
+      "definition": [
+        {
+          "from": "S",
+          "to": "E_0"
+        }
+      ],
+      "model_id": "common"
+    }
+  ]
+}

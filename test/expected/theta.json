@@ -1,0 +1,135 @@
+{
+  "parameter": {
+    "v": {
+      "partition_id": "identical_population",
+      "transformation": "log",
+      "unit": "D",
+      "type": "rate_as_duration",
+      "min": 5,
+      "guess": 11,
+      "max": 20,
+      "sd_transf": 0.02
+    },
+    "E_0": {
+      "partition_id": "variable_population",
+      "transformation": "logit",
+      "group": {
+        "city1__all": {
+          "min": {
+            "value": 0.023333333333333334
+          },
+          "max": {
+            "value": 0.023333333333333334
+          },
+          "guess": {
+            "value": 0.023333333333333334
+          },
+          "sd_transf": {
+            "value": 0
+          }
+        },
+        "city2__all": {
+          "min": {
+            "value": 0.023333333333333334
+          },
+          "max": {
+            "value": 0.023333333333333334
+          },
+          "guess": {
+            "value": 0.023333333333333334
+          },
+          "sd_transf": {
+            "value": 0
+          }
+        }
+      }
+    },
+    "E_1": {
+      "partition_id": "variable_population",
+      "transformation": "logit",
+      "group": {
+        "city1__all": {
+          "min": {
+            "value": 0.023333333333333334
+          },
+          "max": {
+            "value": 0.023333333333333334
+          },
+          "guess": {
+            "value": 0.023333333333333334
+          },
+          "sd_transf": {
+            "value": 0
+          }
+        },
+        "city2__all": {
+          "min": {
+            "value": 0.023333333333333334
+          },
+          "max": {
+            "value": 0.023333333333333334
+          },
+          "guess": {
+            "value": 0.023333333333333334
+          },
+          "sd_transf": {
+            "value": 0
+          }
+        }
+      },
+      "follow": "E_0"
+    },
+    "E_2": {
+      "partition_id": "variable_population",
+      "transformation": "logit",
+      "group": {
+        "city1__all": {
+          "min": {
+            "value": 0.023333333333333334
+          },
+          "max": {
+            "value": 0.023333333333333334
+          },
+          "guess": {
+            "value": 0.023333333333333334
+          },
+          "sd_transf": {
+            "value": 0
+          }
+        },
+        "city2__all": {
+          "min": {
+            "value": 0.023333333333333334
+          },
+          "max": {
+            "value": 0.023333333333333334
+          },
+          "guess": {
+            "value": 0.023333333333333334
+          },
+          "sd_transf": {
+            "value": 0
+          }
+        }
+      },
+      "follow": "E_0"
+    },
+    "I_0": {
+      "partition_id": "identical_population",
+      "transformation": "logit",
+      "min": 5e-7,
+      "guess": 0.000005,
+      "max": 0.00005,
+      "sd_transf": 0.005
+    },
+    "I_1": {
+      "partition_id": "identical_population",
+      "transformation": "logit",
+      "min": 5e-7,
+      "guess": 0.000005,
+      "max": 0.00005,
+      "sd_transf": 0.005,
+      "follow": "I_0"
+    }
+  }
+}

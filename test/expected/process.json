@@ -1,0 +1,209 @@
+{
+  "state": [
+    {
+      "id": "S"
+    },
+    {
+      "id": "E_0",
+      "comment": "exposed (Erlang expanded (_0))"
+    },
+    {
+      "id": "E_1",
+      "comment": "exposed (Erlang expanded (_1))"
+    },
+    {
+      "id": "E_2",
+      "comment": "exposed (Erlang expanded (_2))"
+    },
+    {
+      "id": "I_0",
+      "comment": "symptomatic infectious (Erlang expanded (_0))",
+      "tag": [
+        "infectious"
+      ]
+    },
+    {
+      "id": "I_1",
+      "comment": "symptomatic infectious (Erlang expanded (_1))",
+      "tag": [
+        "infectious"
+      ]
+    },
+    {
+      "id": "A",
+      "comment": "asymptomatic infectious"
+    },
+    {
+      "id": "R",
+      "comment": "recovered",
+      "tag": [
+        "remainder"
+      ]
+    }
+  ],
+  "parameter": [
+    {
+      "id": "r0",
+      "comment": "basic reproductive number"
+    },
+    {
+      "id": "v",
+      "comment": "recovery rate"
+    },
+    {
+      "id": "l",
+      "comment": "latency rate"
+    },
+    {
+      "id": "sto"
+    },
+    {
+      "id": "alpha",
+      "comment": "virulence"
+    },
+    {
+      "id": "s",
+      "comment": "proportion of symptomatic"
+    },
+    {
+      "id": "mu_b"
+    },
+    {
+      "id": "mu_d"
+    },
+    {
+      "id": "g",
+      "comment": "waning immunity rate"
+    }
+  ],
+  "model": [
+    {
+      "from": "U",
+      "to": "S",
+      "rate": "mu_b*N"
+    },
+    {
+      "from": "R",
+      "to": "S",
+      "rate": "g"
+    },
+    {
+      "from": "S",
+      "to": "E_0",
+      "rate": "r0/N*v*((I_0+I_1)+A)",
+      "tag": [
+        "transmission"
+      ]
+    },
+    {
+      "from": "E_0",
+      "to": "U",
+      "rate": "alpha*(l*3)",
+      "comment": "disease induced mortality (virulence)"
+    },
+    {
+      "from": "E_1",
+      "to": "U",
+      "rate": "alpha*(l*3)",
+      "comment": "disease induced mortality (virulence)"
+    },
+    {
+      "from": "E_2",
+      "to": "U",
+      "rate": "alpha*(l*3)",
+      "comment": "disease induced mortality (virulence)"
+    },
+    {
+      "from": "E_2",
+      "to": "I_0",
+      "rate": "(1-alpha)*(l*3)*s"
+    },
+    {
+      "from": "E_2",
+      "to": "A",
+      "rate": "(1-alpha)*(l*3)*(1-s)"
+    },
+    {
+      "from": "I_0",
+      "to": "U",
+      "rate": "alpha*(v*2)"
+    },
+    {
+      "from": "I_1",
+      "to": "U",
+      "rate": "alpha*(v*2)"
+    },
+    {
+      "from": "I_1",
+      "to": "R",
+      "rate": "(1-alpha)*(v*2)"
+    },
+    {
+      "from": "A",
+      "to": "R",
+      "rate": "v"
+    },
+    {
+      "from": "S",
+      "to": "U",
+      "rate": "mu_d"
+    },
+    {
+      "from": "E_0",
+      "to": "U",
+      "rate": "mu_d"
+    },
+    {
+      "from": "E_1",
+      "to": "U",
+      "rate": "mu_d"
+    },
+    {
+      "from": "E_2",
+      "to": "U",
+      "rate": "mu_d"
+    },
+    {
+      "from": "I_0",
+      "to": "U",
+      "rate": "mu_d"
+    },
+    {
+      "from": "I_1",
+      "to": "U",
+      "rate": "mu_d"
+    },
+    {
+      "from": "A",
+      "to": "U",
+      "rate": "mu_d"
+    },
+    {
+      "from": "E_0",
+      "to": "E_1",
+      "rate": "(1-alpha)*(l*3)"
+    },
+    {
+      "from": "E_1",
+      "to": "E_2",
+      "rate": "(1-alpha)*(l*3)"
+    },
+    {
+      "from": "I_0",
+      "to": "I_1",
+      "rate": "(1-alpha)*(v*2)"
+    }
+  ],
+  "white_noise": [
+    {
+      "reaction": [
+        {
+          "from": "S",
+          "to": "E_0"
+        }
+      ],
+      "sd": "sto"
+    }
+  ],
+  "pop_size_eq_sum_sv": false
+}

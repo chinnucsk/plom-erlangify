@@ -1,1 +1,0 @@
-{"observed":[{"id":"prev","definition":["I"],"model_id":"common"},{"id":"inc_out_E","definition":[{"from":"E","to":"I"}],"model_id":"common"},{"id":"inc_out","definition":[{"from":"I","to":"U","rate":"alpha*v"}],"model_id":"common"},{"id":"inc_in","definition":[{"from":"S","to":"E"}],"model_id":"common"}]}
