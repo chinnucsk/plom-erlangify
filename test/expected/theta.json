@@ -12,104 +12,59 @@
     },
     "E_0": {
       "partition_id": "variable_population",
-      "transformation": "logit",
       "group": {
         "city1__all": {
-          "min": {
-            "value": 0.023333333333333334
-          },
-          "max": {
-            "value": 0.023333333333333334
-          },
-          "guess": {
-            "value": 0.023333333333333334
-          },
-          "sd_transf": {
-            "value": 0
-          }
+          "transformation": "logit",
+          "min": 0.023333333333333334,
+          "max": 0.023333333333333334,
+          "guess": 0.023333333333333334,
+          "sd_transf": 0
         },
         "city2__all": {
-          "min": {
-            "value": 0.023333333333333334
-          },
-          "max": {
-            "value": 0.023333333333333334
-          },
-          "guess": {
-            "value": 0.023333333333333334
-          },
-          "sd_transf": {
-            "value": 0
-          }
+          "transformation": "logit",
+          "min": 0.023333333333333334,
+          "max": 0.023333333333333334,
+          "guess": 0.023333333333333334,
+          "sd_transf": 0
         }
       }
     },
     "E_1": {
       "partition_id": "variable_population",
-      "transformation": "logit",
       "group": {
         "city1__all": {
-          "min": {
-            "value": 0.023333333333333334
-          },
-          "max": {
-            "value": 0.023333333333333334
-          },
-          "guess": {
-            "value": 0.023333333333333334
-          },
-          "sd_transf": {
-            "value": 0
-          }
+          "transformation": "logit",
+          "min": 0.023333333333333334,
+          "max": 0.023333333333333334,
+          "guess": 0.023333333333333334,
+          "sd_transf": 0
         },
         "city2__all": {
-          "min": {
-            "value": 0.023333333333333334
-          },
-          "max": {
-            "value": 0.023333333333333334
-          },
-          "guess": {
-            "value": 0.023333333333333334
-          },
-          "sd_transf": {
-            "value": 0
-          }
+          "transformation": "logit",
+          "min": 0.023333333333333334,
+          "max": 0.023333333333333334,
+          "guess": 0.023333333333333334,
+          "sd_transf": 0
         }
       },
       "follow": "E_0"
     },
     "E_2": {
       "partition_id": "variable_population",
-      "transformation": "logit",
       "group": {
         "city1__all": {
-          "min": {
-            "value": 0.023333333333333334
-          },
-          "max": {
-            "value": 0.023333333333333334
-          },
-          "guess": {
-            "value": 0.023333333333333334
-          },
-          "sd_transf": {
-            "value": 0
-          }
+          "transformation": "logit",
+          "min": 0.023333333333333334,
+          "max": 0.023333333333333334,
+          "guess": 0.023333333333333334,
+          "sd_transf": 0
         },
         "city2__all": {
-          "min": {
-            "value": 0.023333333333333334
-          },
-          "max": {
-            "value": 0.023333333333333334
-          },
-          "guess": {
-            "value": 0.023333333333333334
-          },
-          "sd_transf": {
-            "value": 0
-          }
+          "transformation": "logit",
+          "min": 0.023333333333333334,
+          "max": 0.023333333333333334,
+          "guess": 0.023333333333333334,
+          "sd_transf": 0
         }
       },
       "follow": "E_0"

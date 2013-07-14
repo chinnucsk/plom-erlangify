@@ -103,35 +103,21 @@ describe('erlangify', function(){
 
       parameter: {
         E: {
-          partition_id: 'variable_population', transformation: 'logit',
+          partition_id: 'variable_population',
           group: {
             city1__all: {
-              min: {
-                value: 0.07
-              },
-              max: {
-                value: 0.07
-              },
-              guess: {
-                value: 0.07
-              },
-              sd_transf: {
-                value: 0.0
-              }
+              transformation: 'logit',
+              min: 0.07,
+              max: 0.07,
+              guess: 0.07,
+              sd_transf: 0.0
             },
             city2__all: {
-              min: {
-                value: 0.07
-              },
-              max: {
-                value: 0.07
-              },
-              guess: {
-                value: 0.07
-              },
-              sd_transf: {
-                value: 0.0
-              }
+              transformation: 'logit',
+              min: 0.07,
+              max: 0.07,
+              guess: 0.07,
+              sd_transf: 0.0
             }           
           }
         },
@@ -164,7 +150,7 @@ describe('erlangify', function(){
   });
 
   it('should erlangify theta', function(){
-    var e_t = erlang.ify(t);
+    var e_t = erlang.ify(t);   
     assert.deepEqual(e_t, require(path.join(root, 'expected', 'theta.json')));
   });
 
